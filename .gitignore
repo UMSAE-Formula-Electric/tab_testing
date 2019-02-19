@@ -1,0 +1,77 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.elf
+*.map
+*.list
+*.bin
+*.mk
+makefile
+.settings/language.settings.xml
+
+#eclipse settings
+.settings/
+NUCLEO-F446RE.xml
+
+Debug/src/*.com
+Debug/src/*.class
+Debug/src/*.dll
+Debug/src/*.exe
+Debug/src/*.o
+Debug/src/*.so
+Debug/src/*.elf
+Debug/src/*.map
+Debug/src/*.list
+Debug/src/*.bin
+Debug/src/*.mk
+
+
+Debug/*.com
+Debug/*.class
+Debug/*.dll
+Debug/*.exe
+Debug/*.o
+Debug/*.so
+Debug/*.elf
+Debug/*.map
+Debug/*.list
+Debug/*.bin
+Debug/*.mk
+
+startup/startup_stm32.s
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+/Debug/
+/Release/
