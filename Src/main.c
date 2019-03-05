@@ -91,7 +91,9 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  const float RESISIT = 200e-6; //shunt resisitance
+  const float V_FS = (0.512 * 2); //full scale voltage of ADC
+  const float MAX_ADC_BIN_VAL = 0xffff; //number of ADC bits
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -127,6 +129,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint16_t value = 0x0000;
+  float current = 0;
   char out[50];
   char title[50];
   sprintf(title,"Amplified Values (RAW VALUES)\n\r");
@@ -140,7 +143,8 @@ int main(void)
 	  	value <<= 8;
 	  	value &= 0xFF00;
 	  	value |= data[1];
-	  	sprintf(out,"%d\n\r",value);
+	  	current = ((float)value) / MAX_ADC_BIN_VAL * V_FS / RESISIT;
+	  	sprintf(out,"%f\n\r",current);
 	  	HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 1000);
 	  }
     /* USER CODE BEGIN 3 */
