@@ -92,7 +92,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
   const float RESISIT = 200e-6; //shunt resisitance
-  const float V_FS = (0.512 * 2); //full scale voltage of ADC
+  //const float RESISIT = 1;
+  const float V_FS = (1.024 * 2); //full scale voltage of ADC
   const float MAX_ADC_BIN_VAL = 0xffff; //number of ADC bits
   /* USER CODE END 1 */
 
@@ -118,7 +119,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   uint8_t config_data[2], data[3];
-  config_data[0] = 0x08;
+  config_data[0] = 0x06;
   config_data[1] = 0x83;
 
   //Configure Sensor
