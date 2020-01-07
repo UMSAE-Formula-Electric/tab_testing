@@ -91,9 +91,16 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
   const float RESISIT = 200e-6; //shunt resisitance
-  //const float RESISIT = 1;
+  //const float RESISIT = 1; // Uncomment this if u want see the voltage instead of current.
+  //It's just ohms law, if u don't understand, take ECE1450
+
+  /*Change this to correct FSR after u modifed config_data[0], I wrote the correspond
+   * FSR in the comment below. Be smart and read*/
   const float V_FS = (1.024 * 2); //full scale voltage of ADC
+
+
   const float MAX_ADC_BIN_VAL = 0xffff; //number of ADC bits
   /* USER CODE END 1 */
 
@@ -122,6 +129,13 @@ int main(void)
   config_data[0] = 0x06;
   config_data[1] = 0x83;
 
+  /******Read here
+   * config_data[0] = 0x06;   FSR = 1.024 v
+  config_data[0] = 0x08;	 FSR = 0.512 v
+  config_data[0] = 0x0A;	 FSR = 0.256 v
+  config_data[0] = 0x0C;	FSR = 0.256 v
+  config_data[0] = 0x0E;	FSR = 0.256 v
+  */
   //Configure Sensor
   HAL_I2C_Mem_Write(&hi2c1,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,100);
 
