@@ -137,6 +137,7 @@ int main(void)
   config_data[0] = 0x0E;	FSR = 0.256 v
   */
   //Configure Sensor
+
   HAL_I2C_Mem_Write(&hi2c1,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,100);
 
   /* USER CODE END 2 */
@@ -153,14 +154,22 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  if (HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,data,2,100)== HAL_OK){
+	  int code = HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,100);
+	  //int code = HAL_I2C_Master_Transmit(&hi2c1,AMP_SLAVE_ADDRESS,data,2,100);
+	  if (code == HAL_OK){
 	  	value = data[0];
 	  	value <<= 8;
 	  	value &= 0xFF00;
 	  	value |= data[1];
 	  	current = ((float)value) / MAX_ADC_BIN_VAL * V_FS / RESISIT;
 	  	sprintf(out,"%f\n\r",current);
+
+	  	//HAL_UART_Transmit(&huart2, "TEST", strlen("TEST"), 1000);
 	  	HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 1000);
+	  }
+	  else{
+		sprintf(out,"Error: %d\n\r",code);
+		HAL_UART_Transmit(&huart2, out, strlen(out), 1000);
 	  }
     /* USER CODE BEGIN 3 */
   }
