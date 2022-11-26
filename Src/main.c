@@ -42,8 +42,8 @@
 #include "main.h"
 #include "i2c.h"
 #include "usart.h"
+#include "wwdg.h"
 #include "gpio.h"
-#include "string.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -92,8 +92,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-  const float RESISIT = 200e-6; //shunt resisitance
-  //const float RESISIT = 1; // Uncomment this if u want see the voltage instead of current.
+  //const float RESISIT = 200e-6; //shunt resisitance
+  const float RESISIT = 1; // Uncomment this if u want see the voltage instead of current.
   //It's just ohms law, if u don't understand, take ECE1450
 
   /*Change this to correct FSR after u modifed config_data[0], I wrote the correspond
@@ -101,7 +101,7 @@ int main(void)
   const float V_FS = (1.024 * 2); //full scale voltage of ADC
 
 
-  const float MAX_ADC_BIN_VAL = 0xffff; //number of ADC bits
+  const float MAX_ADC_BIN_VAL = 0x7fff; //number of ADC bits
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -123,8 +123,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
+  MX_WWDG_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
+  HAL_UART_Transmit(&huart2, "Init Complete", strlen("Init Complete"), 1000);
   uint8_t config_data[2], data[3];
   config_data[0] = 0x06;
   config_data[1] = 0x83;
@@ -138,7 +140,7 @@ int main(void)
   */
   //Configure Sensor
 
-  HAL_I2C_Mem_Write(&hi2c1,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,100);
+  HAL_I2C_Mem_Write(&hi2c2,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,100);
 
   /* USER CODE END 2 */
 
@@ -148,29 +150,30 @@ int main(void)
   float current = 0;
   char out[50];
   char title[50];
-  sprintf(title,"Amplified Values (RAW VALUES)\n\r");
+  sprintf(title,"Reset\n\r");
   HAL_UART_Transmit(&huart2, (uint8_t *)title, strlen(title), 1000);
 
   while (1)
   {
-    /* USER CODE END WHILE */
-	  int code = HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,100);
-	  //int code = HAL_I2C_Master_Transmit(&hi2c1,AMP_SLAVE_ADDRESS,data,2,100);
+	  int code = HAL_I2C_Mem_Read(&hi2c2,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,100);
 	  if (code == HAL_OK){
-	  	value = data[0];
-	  	value <<= 8;
-	  	value &= 0xFF00;
-	  	value |= data[1];
-	  	current = ((float)value) / MAX_ADC_BIN_VAL * V_FS / RESISIT;
-	  	sprintf(out,"%f\n\r",current);
+		value = data[0];
+		value <<= 8;
+		value &= 0xFF00;
+		value |= data[1];
+		current = ((float)value) / MAX_ADC_BIN_VAL * V_FS / RESISIT;
+		sprintf(out,"%f\n\r",current);
 
-	  	//HAL_UART_Transmit(&huart2, "TEST", strlen("TEST"), 1000);
-	  	HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 1000);
+		//HAL_UART_Transmit(&huart2, "TEST", strlen("TEST"), 1000);
+		HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 1000);
+		HAL_WWDG_Refresh(&hwwdg);
 	  }
 	  else{
 		sprintf(out,"Error: %d\n\r",code);
 		HAL_UART_Transmit(&huart2, out, strlen(out), 1000);
 	  }
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -185,11 +188,11 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /**Configure the main internal regulator output voltage 
+  /**Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /**Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -205,7 +208,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /**Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -245,7 +248,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
