@@ -123,6 +123,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
+  MX_WWDG_Init();
   /* USER CODE BEGIN 2 */
   //HAL_UART_Transmit(&huart2, "Init Complete", strlen("Init Complete"), 1000);
   uint8_t config_data[2], data[3];
@@ -138,7 +139,7 @@ int main(void)
   */
   //Configure Sensor
 
-  HAL_I2C_Mem_Write(&hi2c2,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,10);
+  HAL_I2C_Mem_Write(&hi2c1,AMP_SLAVE_ADDRESS,CONFIG_REG,1,config_data,2,10);
 
   /* USER CODE END 2 */
 
@@ -151,10 +152,10 @@ int main(void)
   //int code;
   //sprintf(title,"Reset\n\r");
   //HAL_UART_Transmit(&huart2, (uint8_t *)title, strlen(title), 1000);
-  MX_WWDG_Init();
+
   while (1)
   {
-	  int code = HAL_I2C_Mem_Read(&hi2c2,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,1000);
+	  int code = HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,1000);
 	  if (code == HAL_OK){
 		value = data[0];
 		value <<= 8;
