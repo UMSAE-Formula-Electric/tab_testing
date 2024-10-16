@@ -124,7 +124,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Transmit(&huart2, "Init Complete", strlen("Init Complete"), 1000);
+//  HAL_UART_Transmit(&huart2, "Init Complete", strlen("Init Complete"), 1000);
   uint8_t config_data[2], data[3];
   config_data[0] = 0x06;
   config_data[1] = 0x83;
@@ -150,12 +150,12 @@ int main(void)
   char title[50];
   //int code;
   sprintf(title,"Reset\n\r");
-  HAL_UART_Transmit(&huart2, (uint8_t *)title, strlen(title), 1000);
+//  HAL_UART_Transmit(&huart2, (uint8_t *)title, strlen(title), 1000);
 
   MX_WWDG_Init();
   while (1)
   {
-	  int code = HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,100);
+	  int code = HAL_I2C_Mem_Read(&hi2c1,AMP_SLAVE_ADDRESS,DATA_REG,1,&data[0],2,10000);
 	  if (code == HAL_OK){
 		value = data[0];
 		value <<= 8;
@@ -166,7 +166,9 @@ int main(void)
 		sprintf(out,"%f\n\r",current);
 
 //		HAL_UART_Transmit(&huart2, "TEST", strlen("TEST"), 1000);
-		if(current < 3000) HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 100);
+		if(current < 3000) HAL_UART_Transmit(&huart2, (uint8_t *)out, strlen(out), 10);
+		HAL_WWDG_Refresh(&hwwdg);
+
 
 
 	  }
@@ -177,7 +179,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_WWDG_Refresh(&hwwdg);
   }
   /* USER CODE END 3 */
 }
